@@ -1,5 +1,5 @@
 /* - middleware  => Interceptaor => tem o poder de parar ou alterar dados da requisição */
-
+//tratamentos de erros (try catch)
 
 const express = require('express')
 const uuid = require('uuid')
@@ -29,13 +29,23 @@ app.get('/users', (req, res) => {
   return res.json(users)
 })
 app.post('/users', (req, res) => {
-  const { name, age } = req.body
 
-  const user = { id: uuid.v4(), name, age }
+  try {
+    const { name, age } = req.body;
 
-  users.push(user)
+    if (age < 18) throw new Error("Only allowed users over 18 years old")
 
-  return res.status(201).json(user)
+
+    const user = { id: uuid.v4(), name, age }
+
+    users.push(user)
+
+    return res.status(201).json(user)
+  } catch (err) {
+    return res.status(400).json({ error: err.message })
+  } finally {
+    console.log("Terminou tudo!");
+  }
 })
 app.put('/users/:id', checkUserId, (req, res) => {
 
@@ -58,20 +68,6 @@ app.delete('/users/:id', checkUserId, (req, res) => {
   users.splice(index, 1)
   return res.status(204).json()
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 app.listen(port, () => {
